@@ -1,0 +1,121 @@
+---
+title: "Time2"
+author: "Dong Woo Shin"
+date: "2024-05-16"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(infer))
+```
+
+```{r}
+supermarket_df <- read.csv("Practice1.csv")
+```
+
+```{r}
+selected_supermarket <- supermarket_df %>%
+  select(Customer.type, Gender, cogs, Payment, Rating, Product.line)
+```
+
+```{r}
+per_customer <- selected_supermarket %>%
+  group_by(Customer.type) %>%
+  summarise(count = n())
+```
+
+```{r}
+per_Gender <- selected_supermarket %>%
+  group_by(Gender) %>%
+  summarise(count = n())
+```
+
+```{r}
+per_payment <- selected_supermarket %>%
+  group_by(Payment) %>%
+  summarise(count = n())
+```
+
+```{r}
+per_product <- selected_supermarket %>%
+  group_by(Product.line) %>%
+  summarise(count = n())
+```
+
+```{r}
+null_distribution <- selected_supermarket %>%
+  specify(cogs ~ Gender) %>%
+  hypothesize(null = "independence") %>%
+  generate(reps = 1000, type = "permute")
+```
+
+```{r}
+observed_stat <- null_distribution %>%
+  calculate(stat = "diff in means", order = c("Female" , "Male"))
+```
+
+```{r}
+p_value <- observed_stat %>%
+  get_p_value(obs_stat = observed_stat, direction = "both")
+```
+
+```{r}
+male_data <- filter(as.data.frame(null_distribution), Gender == "Male")
+
+female_data <- filter(as.data.frame(null_distribution), Gender == "Female")
+```
+
+
+```{r}
+ggplot(data = male_data, aes(x = cogs, fill = Gender)) +
+  geom_density(alpha = 0.5) +
+  labs(x = "Difference in Means", y = "Density") +
+  scale_fill_manual(values = "blue") +
+  theme_minimal()
+```
+
+```{r}
+ggplot(data = female_data, aes(x = cogs, fill = Gender)) +
+  geom_density(alpha = 0.5) +
+  labs(x = "Difference in Means", y = "Density") +
+  scale_fill_manual(values = "red") +
+  theme_minimal()
+```
+
+
+```{r}
+
+mean_cogs <- aggregate(cogs ~ Gender, data = selected_supermarket, FUN = mean)
+
+ggplot(mean_cogs, aes(x = Gender, y = cogs)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black", width = 0.3) +
+  labs(title = "Gender vs. Average Cogs",
+       x = "Gender",
+       y = "Average Cogs") +
+  theme_minimal()
+```
+
+```{r}
+male_summary <- male_data %>%
+  summarise(
+    max = max(cogs),
+    min = min(cogs),
+    median= median(cogs),
+    mean= mean(cogs)
+  )
+
+female_summary <- female_data %>%
+  summarise(
+  max= max(cogs),
+  min= min(cogs),
+  median= median(cogs),
+  mean= mean(cogs)
+  )
+
+male_summary
+female_summary
+
+```
