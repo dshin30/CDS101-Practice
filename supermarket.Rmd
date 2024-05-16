@@ -70,7 +70,7 @@ female_data <- filter(as.data.frame(null_distribution), Gender == "Female")
 
 
 ```{r}
-ggplot(data = male_data, aes(x = cogs, fill = Gender)) +
+ggplot(data = male_data, aes(x = cogs)) +
   geom_density(alpha = 0.5) +
   labs(x = "Difference in Means", y = "Density") +
   scale_fill_manual(values = "blue") +
@@ -78,7 +78,7 @@ ggplot(data = male_data, aes(x = cogs, fill = Gender)) +
 ```
 
 ```{r}
-ggplot(data = female_data, aes(x = cogs, fill = Gender)) +
+ggplot(data = female_data, aes(x = cogs)) +
   geom_density(alpha = 0.5) +
   labs(x = "Difference in Means", y = "Density") +
   scale_fill_manual(values = "red") +
@@ -119,3 +119,22 @@ male_summary
 female_summary
 
 ```
+
+
+```{r}
+product_purchase_by_gender <- selected_supermarket %>%
+  group_by(Gender, Product.line) %>%
+  summarise(count = n(), .groups = "keep")
+```
+
+```{r}
+
+ggplot(product_purchase_by_gender, aes(x = Gender, y = count, fill = Product.line)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Most Purchased Product Lines by Gender",
+       x = "Gender",
+       y = "Count",
+       fill = "Product Line") +
+  theme_minimal()
+```
+
