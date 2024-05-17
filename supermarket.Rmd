@@ -1,5 +1,5 @@
 ---
-title: "Time2"
+title: "supermarket"
 author: "Dong Woo Shin"
 date: "2024-05-16"
 output: pdf_document
@@ -54,6 +54,7 @@ null_distribution <- selected_supermarket %>%
 
 ```{r}
 observed_stat <- null_distribution %>%
+  specify(cogs ~ Gender) %>%
   calculate(stat = "diff in means", order = c("Female" , "Male"))
 ```
 
@@ -61,6 +62,7 @@ observed_stat <- null_distribution %>%
 p_value <- observed_stat %>%
   get_p_value(obs_stat = observed_stat, direction = "both")
 ```
+
 
 ```{r}
 male_data <- filter(as.data.frame(null_distribution), Gender == "Male")
@@ -71,18 +73,14 @@ female_data <- filter(as.data.frame(null_distribution), Gender == "Female")
 
 ```{r}
 ggplot(data = male_data, aes(x = cogs)) +
-  geom_density(alpha = 0.5) +
-  labs(x = "Difference in Means", y = "Density") +
-  scale_fill_manual(values = "blue") +
-  theme_minimal()
+  geom_density(fill = "blue", alpha = 0.5) +
+  labs(x = "Mean", y = "Density")
 ```
 
 ```{r}
 ggplot(data = female_data, aes(x = cogs)) +
-  geom_density(alpha = 0.5) +
-  labs(x = "Difference in Means", y = "Density") +
-  scale_fill_manual(values = "red") +
-  theme_minimal()
+  geom_density(fill = "red", alpha = 0.5) +
+  labs(x = "Mean", y = "Density")
 ```
 
 
@@ -107,6 +105,10 @@ male_summary <- male_data %>%
     mean= mean(cogs)
   )
 
+male_summary
+```
+
+```{r}
 female_summary <- female_data %>%
   summarise(
   max= max(cogs),
@@ -115,9 +117,7 @@ female_summary <- female_data %>%
   mean= mean(cogs)
   )
 
-male_summary
 female_summary
-
 ```
 
 
@@ -136,5 +136,16 @@ ggplot(product_purchase_by_gender, aes(x = Gender, y = count, fill = Product.lin
        y = "Count",
        fill = "Product Line") +
   theme_minimal()
+```
+
+```{r}
+product_costs <- selected_supermarket %>%
+  group_by(Product.line) %>%
+  summarise(total_costs = sum(cogs))
+```
+
+```{r}
+most_expensive_product <- product_costs %>%
+  arrange(desc(total_costs))
 ```
 
